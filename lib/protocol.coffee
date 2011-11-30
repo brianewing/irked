@@ -83,19 +83,29 @@ exports.validations =
 
 exports.regex = regex = /^(:(\S+) )?(\S+)( (?!:)(.+?))?( :(.+))?$/
 
-exports.parseEvent = (line) ->
-  line = line.toString().trim()
+exports.parseEvent = (client, line) ->
+  line = line.trim()
   match = line.match regex
+
+  return if not match?
 
   actor = match[2]
   verb = match[3]
   args = (match[5] or '').split(' ')
   extended = match[7]
 
-  events.factory(verb, args, extended)
+  events.factory(client, verb, args, extended)
 
-exports.combine = (verb, args, extended) ->
-  line = verb.toUpperCase()
+exports.combine = (actor, verb, args, extended) ->
+  line = ""
+  
+  if actor?
+    if actor.hostname
+      actor = actor.hostname()
+    
+    line += ":#{actor} "
+  
+  line += verb.toUpperCase()
 
   if args?
     if args.join?

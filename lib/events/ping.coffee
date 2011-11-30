@@ -2,10 +2,8 @@ events = require('../events')
 Event = require('./event').Event
 
 class PingEvent extends Event
-  constructor: (verb, args, extended) ->
-    super verb, args, extended
-
-    @token = extended
+  initialize: ->
+    @token = @extended
   
   type: ->
     'ping'

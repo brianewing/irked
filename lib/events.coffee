@@ -1,17 +1,21 @@
 MessageEvent = require('./events/message').event
 PingEvent = require('./events/ping').event
 PongEvent = require('./events/pong').event
+NickChangeEvent = require('./events/nick').event
+UserEvent = require('./events/user').event
 
-exports.factory = (verb, args, extended) ->
+exports.factory = (client, verb, args, extended) ->
   event = null
 
-  switch verb.toLowerCase()
-    when "privmsg"
-      event = new MessageEvent(verb, args, extended)
-    when "ping"
-      event = new PingEvent(verb, args, extended)
-    when "pong"
-      event = new PongEvent(verb, args, extended)
+  mapping =
+    "privmsg": MessageEvent
+    "ping": PingEvent
+    "pong": PongEvent
+    "nick": NickChangeEvent
+    "user": UserEvent
+  
+  eventType = mapping[verb.toLowerCase()]
+  event = new eventType(client, verb, args, extended) if eventType?
   
   if event? and event.verify()
     event

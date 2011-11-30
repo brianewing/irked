@@ -1,6 +1,10 @@
 irked = require('./lib/server')
 
-server = irked.createServer()
+config =
+  hostname: 'irc.test.dev'
+  name: 'Brian IRC'
+
+server = irked.createServer(config)
 console.log "Running #{server.version()}"
 
 [6667, 7000, 8000, 9000].forEach (port) ->

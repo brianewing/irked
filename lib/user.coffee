@@ -1,21 +1,23 @@
 protocol = require('./protocol')
+UserRegisteredEvent = require('./events/user_registered').event
 
 PING_WAIT = 30
 
 class User
-  constructor: (@client) ->
+  constructor: (@client, @server) ->
     @registered = false
     @setupPing()
   
-  dispatch: (verb, args, extended) ->
-    line = protocol.combine(verb, args, extended)
+  dispatch: (actor, verb, args, extended) ->
+    line = protocol.combine(actor, verb, args, extended)
     @client.write "#{line}\r\n"
   
   disconnect: ->
+    @client.end()
+  
+  disconnectCleanup: ->
     [@pingTimeout, @pingDisconnectTimeout].forEach (timeout) ->
       clearTimeout timeout if timeout?
-    
-    @client.end()
   
   setupPing: ->
     if @pingTimeout?
@@ -26,7 +28,7 @@ class User
     @pingTimeout = setTimeout (=> @needPing()), PING_WAIT * 1000
   
   needPing: ->
-    @dispatch 'ping', null, 'irked'
+    @dispatch null, 'ping', null, 'irked'
     @pingDisconnectTimeout = setTimeout (=> @pingDisconnect()), PING_WAIT * 2 * 1000
   
   pingDisconnect: ->
@@ -35,5 +37,12 @@ class User
 
   touch: ->
     @setupPing()
+  
+  checkRegistered: ->
+    if @nick and @ident and @realname
+      event = new UserRegisteredEvent(@nick, @ident, @realname)
+      event.client = @client
 
+      @server.fireEvent(event)
+  
 exports.User = User

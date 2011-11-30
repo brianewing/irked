@@ -5,11 +5,13 @@ net = require('net')
 User = require('./user').User
 
 class Server
-  constructor: ->
+  constructor: (config) ->
     @tcpServers = {}
     @clients = []
     @eventHandlers = {}
 
+    @config = config
+    @addDefaultConfig()
     @addDefaultHandlers()
   
   version: -> version.full()
@@ -21,18 +23,18 @@ class Server
   addClient: (socket) ->
     @clients.push socket
 
-    socket.user = new User(socket);
+    socket.user = new User(socket, @);
 
     socket.on 'data', (data) =>
-      event = protocol.parseEvent(data)
+      data.toString().split('\n').forEach (line) =>
+        event = protocol.parseEvent(socket, line.trim())
 
-      if event?
-        event.client = socket
-        @fireEvent(event.type(), event)
-
-        event.client.user.touch()
+        if event?
+          @fireEvent(event)
+          event.client.user.touch()
     
     socket.on 'end', =>
+      socket.user.disconnectCleanup()
       @clients.splice @clients.indexOf(socket), 1
   
   listen: (port, host = "0.0.0.0") ->
@@ -45,7 +47,8 @@ class Server
     @eventHandlers[type] ||= []
     @eventHandlers[type].push callback
   
-  fireEvent: (type, event) ->
+  fireEvent: (event) ->
+    type = event.type()
     return false if !@eventHandlers[type]?
 
     @eventHandlers[type].some (handler) ->
@@ -53,9 +56,26 @@ class Server
   
   addDefaultHandlers: ->
     @on 'ping', @onPing
+    @on 'registered', @onRegistered
   
-  onPing: (event) ->
-    event.client.user.dispatch('pong', null, event.token)
+  addDefaultConfig: ->
+  
+  hostname: -> @config.hostname
 
-exports.createServer = ->
-  new Server()
+  welcomeMessage: ->
+    "Welcome to #{@config.name}"
+  
+  hostMessage: ->
+    "Your host is #{@hostname()} running #{@version()}"
+
+  onPing: (event) =>
+    event.client.user.dispatch(@, 'pong', null, event.token)
+  
+  onRegistered: (event) =>
+    user = event.client.user
+
+    user.dispatch(@, protocol.reply.welcome, null, @welcomeMessage())
+    user.dispatch(@, protocol.reply.yourHost, null, @hostMessage())
+
+exports.Server = Server
+exports.createServer = (config) -> new Server(config)
