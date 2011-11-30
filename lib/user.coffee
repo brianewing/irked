@@ -28,7 +28,7 @@ class User
     @pingTimeout = setTimeout (=> @needPing()), PING_WAIT * 1000
   
   needPing: ->
-    @dispatch null, 'ping', null, 'irked'
+    @dispatch null, 'ping', null, @server.hostname()
     @pingDisconnectTimeout = setTimeout (=> @pingDisconnect()), PING_WAIT * 2 * 1000
   
   pingDisconnect: ->
