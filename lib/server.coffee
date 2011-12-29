@@ -74,8 +74,8 @@ class Server
   onRegistered: (event) =>
     user = event.client.user
 
-    user.dispatch(@, protocol.reply.welcome, null, @welcomeMessage())
-    user.dispatch(@, protocol.reply.yourHost, null, @hostMessage())
+    user.dispatch(@, protocol.reply.welcome, user.nick, @welcomeMessage())
+    user.dispatch(@, protocol.reply.yourHost, user.nick, @hostMessage())
 
 exports.Server = Server
 exports.createServer = (config) -> new Server(config)
