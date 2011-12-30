@@ -67,6 +67,8 @@ class Server
   
   hostMessage: ->
     "Your host is #{@hostname()} running #{@version()}"
+  
+  toActor: -> @hostname()
 
   onPing: (event) =>
     event.client.user.dispatch(@, 'pong', null, event.token)

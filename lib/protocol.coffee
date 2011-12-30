@@ -100,8 +100,8 @@ exports.combine = (actor, verb, args, extended) ->
   line = ""
   
   if actor?
-    if actor.hostname
-      actor = actor.hostname()
+    if actor.toActor
+      actor = actor.toActor()
     
     line += ":#{actor} "
   
