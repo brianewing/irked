@@ -1,0 +1,9 @@
+{
+  "name": "irked",
+  "description": "Experimental IRC server written in CoffeeScript",
+  "version": "0.0.1",
+  
+  "dependencies": {
+    "underscore": "~1.2.3"
+  }
+}
