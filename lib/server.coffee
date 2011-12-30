@@ -84,7 +84,6 @@ class Server
     client.user if client?
   
   findChannel: (channel) ->
-    # todo: faster implementation
     @channels[channel.toLowerCase()]
   
   makeChannel: (channel) ->
