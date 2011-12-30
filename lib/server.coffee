@@ -5,12 +5,14 @@ protocol = require('./protocol')
 net = require('net')
 
 User = require('./user').User
+Channel = require('./channel').Channel
 
 class Server
   constructor: (config) ->
     @tcpServers = {}
     @clients = []
     @eventHandlers = {}
+    @channels = []
 
     @config = config
     @addDefaultConfig()
@@ -61,6 +63,8 @@ class Server
     @on 'ping', @onPing
     @on 'registered', @onRegistered
     @on 'nick', @onNick
+    @on 'join', @onJoin
+    @on 'message', @onMessage
   
   addDefaultConfig: ->
   
@@ -78,6 +82,13 @@ class Server
     # todo: faster implementation
     
     (_.select @clients, (client) -> client.user.nick and client.user.nick.toLowerCase() == nickname.toLowerCase())[0]
+  
+  findChannel: (channel) ->
+    # todo: faster implementation
+    @channels[channel.toLowerCase()]
+  
+  makeChannel: (channel) ->
+    @channels[channel.toLowerCase()] ||= new Channel(channel, @)
 
   onPing: (event) =>
     event.client.user.dispatch(@, 'pong', null, event.token)
@@ -100,6 +111,23 @@ class Server
       user.nick = event.nick
 
       user.checkRegistered() unless user.registered
+  
+  onJoin: (event) =>
+    user = event.client.user
+    channel = @findChannel(event.channel)
+    channel ||= @makeChannel(event.channel)
+
+    channel.addUser(user)
+  
+  onMessage: (event) =>
+    user = event.client.user
+    channel = @findChannel(event.channel)
+    
+    if channel
+      channel.dispatch user, 'privmsg', event.channel, event.message, (u) -> u.equals(user)
+    else
+      event.cancel()
+      user.dispatch @, protocol.errors.noSuchChannel, event.channel, 'Cannot send message to channel'
 
 exports.Server = Server
 exports.createServer = (config) -> new Server(config)

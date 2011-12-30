@@ -6,6 +6,7 @@ PING_WAIT = 30
 class User
   constructor: (@client, @server) ->
     @registered = false
+    @channels = []
     @setupPing()
   
   dispatch: (actor, verb, args, extended) ->
@@ -48,5 +49,8 @@ class User
   
   hostmask: -> @client.remoteAddress # todo: hostname lookups, vhosts, oh my!
   toActor: -> "#{@nick}!#{@ident}@#{@hostmask()}"
+
+  equals: (other) ->
+    other and other.nick.toLowerCase() == @nick.toLowerCase()
   
 exports.User = User
