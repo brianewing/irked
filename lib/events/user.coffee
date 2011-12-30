@@ -14,6 +14,8 @@ class UserEvent extends Event
       @client.user.realname = @realname
       @client.user.checkRegistered()
   
+  @registeredOnly = false
+  
   type: ->
     'user'
   

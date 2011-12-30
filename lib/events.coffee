@@ -5,7 +5,7 @@ NickChangeEvent = require('./events/nick').event
 UserEvent = require('./events/user').event
 JoinEvent = require('./events/join').event
 
-exports.factory = (client, verb, args, extended) ->
+exports.factory = (server, client, verb, args, extended) ->
   event = null
 
   mapping =
@@ -17,9 +17,13 @@ exports.factory = (client, verb, args, extended) ->
     "join": JoinEvent
   
   eventType = mapping[verb.toLowerCase()]
-  event = new eventType(client, verb, args, extended) if eventType?
-  
-  if event? and event.verify()
-    event
+
+  if eventType? and (not eventType.registeredOnly or client.user.registered)
+    event = new eventType(server, client, verb, args, extended) if eventType?
+    if event.verify()
+      event
+    else
+      event.notVerified()
+      null
   else
-    null
+    return null

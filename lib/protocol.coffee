@@ -83,7 +83,7 @@ exports.validations =
 
 exports.regex = regex = /^(:(\S+) )?(\S+)( (?!:)(.+?))?( :(.+))?$/
 
-exports.parseEvent = (client, line) ->
+exports.parseEvent = (server, client, line) ->
   line = line.trim()
   match = line.match regex
 
@@ -94,7 +94,7 @@ exports.parseEvent = (client, line) ->
   args = (match[5] or '').split(' ')
   extended = match[7]
 
-  events.factory(client, verb, args, extended)
+  events.factory(server, client, verb, args, extended)
 
 exports.combine = (actor, verb, args, extended) ->
   line = ""

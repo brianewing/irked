@@ -1,14 +1,17 @@
 class Event
-  constructor: (@client, @verb, @args, @extended) ->
+  constructor: (@server, @client, @verb, @args, @extended) ->
+    @user = @client.user
     @initialize()
   
   initialize: ->
   
-  type: ->
-    'generic'
+  type: -> 'generic'
   
-  verify: ->
-    true
+  @registeredOnly = -> true
+  
+  verify: -> true
+  
+  notVerified: ->
   
   cancel: ->
     @cancelled = true

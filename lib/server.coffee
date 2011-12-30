@@ -27,11 +27,11 @@ class Server
   addClient: (socket) ->
     @clients.push socket
 
-    socket.user = new User(socket, @);
+    socket.user = new User(socket, @)
 
     socket.on 'data', (data) =>
       data.toString().split('\n').forEach (line) =>
-        event = protocol.parseEvent(socket, line.trim())
+        event = protocol.parseEvent(@, socket, line.trim())
 
         if event?
           @fireEvent(event)
