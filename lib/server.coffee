@@ -1,3 +1,5 @@
+_ = require('underscore')
+
 version = require('./version')
 protocol = require('./protocol')
 net = require('net')
@@ -52,11 +54,13 @@ class Server
     return false if !@eventHandlers[type]?
 
     @eventHandlers[type].some (handler) ->
+      return if event.cancelled
       handler(event)
   
   addDefaultHandlers: ->
     @on 'ping', @onPing
     @on 'registered', @onRegistered
+    @on 'nick', @onNick
   
   addDefaultConfig: ->
   
@@ -70,6 +74,11 @@ class Server
   
   toActor: -> @hostname()
 
+  findUser: (nickname) ->
+    # todo: faster implementation
+    
+    (_.select @clients, (client) -> client.user.nick and client.user.nick.toLowerCase() == nickname.toLowerCase())[0]
+
   onPing: (event) =>
     event.client.user.dispatch(@, 'pong', null, event.token)
   
@@ -78,6 +87,19 @@ class Server
 
     user.dispatch(@, protocol.reply.welcome, user.nick, @welcomeMessage())
     user.dispatch(@, protocol.reply.yourHost, user.nick, @hostMessage())
+  
+  onNick: (event) =>
+    user = event.client.user
+
+    if @findUser(event.nick)
+      event.cancel()
+
+      user.dispatch(@, protocol.errors.nameInUse, [user.nick, event.nick], 'Nickname is already being used')
+    else
+      user.dispatch(user, 'nick', null, event.nick) if user.registered
+      user.nick = event.nick
+
+      user.checkRegistered() unless user.registered
 
 exports.Server = Server
 exports.createServer = (config) -> new Server(config)

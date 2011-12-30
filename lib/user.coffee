@@ -42,7 +42,11 @@ class User
     if @nick and @ident and @realname
       event = new UserRegisteredEvent(@nick, @ident, @realname)
       event.client = @client
+      @registered = true
 
       @server.fireEvent(event)
+  
+  hostmask: -> @client.remoteAddress # todo: hostname lookups, vhosts, oh my!
+  toActor: -> "#{@nick}!#{@ident}@#{@hostmask()}"
   
 exports.User = User

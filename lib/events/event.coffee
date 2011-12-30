@@ -9,5 +9,8 @@ class Event
   
   verify: ->
     true
+  
+  cancel: ->
+    @cancelled = true
 
 exports.Event = Event
