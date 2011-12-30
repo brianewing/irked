@@ -17,6 +17,7 @@ exports.factory = (server, client, verb, args, extended) ->
     "user": UserEvent
     "join": JoinEvent
     "names": NamesEvent
+    "who": NamesEvent # todo: implement WHO properly
   
   eventType = mapping[verb.toLowerCase()]
 
