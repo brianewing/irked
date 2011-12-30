@@ -37,7 +37,7 @@ class Server
           @fireEvent(event)
           event.client.user.touch()
     
-    socket.on 'end', =>
+    socket.on 'close', =>
       socket.user.disconnectCleanup()
       @clients.splice @clients.indexOf(socket), 1
   
