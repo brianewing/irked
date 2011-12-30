@@ -117,7 +117,7 @@ class Server
     channel = @findChannel(event.channel)
     channel ||= @makeChannel(event.channel)
 
-    channel.addUser(user) unless channel.hasUser(user)
+    channel.addUser(user)
   
   onMessage: (event) =>
     user = event.client.user
