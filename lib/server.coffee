@@ -60,7 +60,7 @@ class Server
       handler(event)
   
   addDefaultHandlers: ->
-    @on 'ping', @onPing
+    @on 'ping', (event) => event.client.user.dispatch(@, 'pong', null, event.token)
     @on 'registered', @onRegistered
     @on 'nick', @onNick
     @on 'join', @onJoin
@@ -71,11 +71,9 @@ class Server
   
   hostname: -> @config.hostname
 
-  welcomeMessage: ->
-    "Welcome to #{@config.name}"
+  welcomeMessage: -> "Welcome to #{@config.name}"
   
-  hostMessage: ->
-    "Your host is #{@hostname()} running #{@version()}"
+  hostMessage: -> "Your host is #{@hostname()} running #{@version()}"
   
   toActor: -> @hostname()
 
@@ -83,14 +81,8 @@ class Server
     client = _.find @clients, (client) -> client.user.nick and client.user.nick.toLowerCase() == nickname.toLowerCase()
     client.user if client?
   
-  findChannel: (channel) ->
-    @channels[channel.toLowerCase()]
-  
-  makeChannel: (channel) ->
-    @channels[channel.toLowerCase()] ||= new Channel(channel, @)
-
-  onPing: (event) =>
-    event.client.user.dispatch(@, 'pong', null, event.token)
+  findChannel: (channel) -> @channels[channel.toLowerCase()]
+  makeChannel: (channel) -> @channels[channel.toLowerCase()] ||= new Channel(channel, @)
   
   onRegistered: (event) =>
     user = event.client.user
@@ -113,8 +105,7 @@ class Server
   
   onJoin: (event) =>
     user = event.client.user
-    channel = @findChannel(event.channel)
-    channel ||= @makeChannel(event.channel)
+    channel = @makeChannel(event.channel)
 
     channel.addUser(user)
   

@@ -5,8 +5,7 @@ class JoinEvent extends Event
   initialize: ->
     @channel = (@args[0] or @extended or '').trim()
   
-  type: ->
-    'join'
+  type: -> 'join'
   
   verify: ->
     @channel and @channel[0] == '#' and not @channel.match(protocol.validations.invalidChannel)

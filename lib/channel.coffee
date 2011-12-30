@@ -7,15 +7,16 @@ class Channel
   
   addUser: (user) ->
     return if @hasUser(user)
+
     @users.push user
+    
     @dispatch user, 'join', null, @name
     @sendNames user
   
   removeUser: (user) ->
     @users.splice @users.indexOf(user), 1
   
-  hasUser: (user) ->
-    _.include @users, user
+  hasUser: (user) -> _.include @users, user
   
   # dispatch something to *all* channel inhabitants
   dispatch: (actor, verb, args, extended, filter) ->

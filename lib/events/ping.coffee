@@ -5,7 +5,6 @@ class PingEvent extends Event
   initialize: ->
     @token = @extended
   
-  type: ->
-    'ping'
+  type: -> 'ping'
 
 exports.event = PingEvent

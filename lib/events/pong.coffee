@@ -1,7 +1,6 @@
 PingEvent = require('./ping').event
 
 class PongEvent extends PingEvent
-  type: ->
-    'pong'
+  type: -> 'pong'
 
 exports.event = PongEvent

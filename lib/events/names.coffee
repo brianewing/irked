@@ -5,8 +5,7 @@ class NamesEvent extends Event
   initialize: ->
     @channel = (@args[0] or @extended or '').trim()
   
-  type: ->
-    'names'
+  type: -> 'names'
   
   verify: -> @channel and @server.findChannel(@channel)
   
