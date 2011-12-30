@@ -3,6 +3,7 @@ PingEvent = require('./events/ping').event
 PongEvent = require('./events/pong').event
 NickChangeEvent = require('./events/nick').event
 UserEvent = require('./events/user').event
+JoinEvent = require('./events/join').event
 
 exports.factory = (client, verb, args, extended) ->
   event = null
@@ -13,6 +14,7 @@ exports.factory = (client, verb, args, extended) ->
     "pong": PongEvent
     "nick": NickChangeEvent
     "user": UserEvent
+    "join": JoinEvent
   
   eventType = mapping[verb.toLowerCase()]
   event = new eventType(client, verb, args, extended) if eventType?
