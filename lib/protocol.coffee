@@ -116,3 +116,4 @@ exports.combine = (actor, verb, args, extended) ->
     line += " " + args
   
   line += " :#{extended}" if extended?
+  line
