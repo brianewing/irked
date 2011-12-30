@@ -98,7 +98,9 @@ class Server
 
       user.dispatch(@, protocol.errors.nameInUse, [user.nick, event.nick], 'Nickname is already being used')
     else
-      user.dispatch(user, 'nick', null, event.nick) if user.registered
+      if user.registered
+        user.dispatchPublic(user, 'nick', null, event.nick)
+      
       user.nick = event.nick
 
       user.checkRegistered() unless user.registered

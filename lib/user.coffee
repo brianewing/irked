@@ -13,6 +13,10 @@ class User
     line = protocol.combine(actor, verb, args, extended)
     @client.write "#{line}\r\n"
   
+  dispatchPublic: (actor, verb, args, extended) ->
+    @channels.forEach (channel) ->
+      channel.dispatch actor, verb, args, extended
+  
   disconnect: -> @client.end()
   
   disconnectCleanup: ->

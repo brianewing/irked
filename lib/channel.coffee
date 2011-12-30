@@ -9,12 +9,14 @@ class Channel
     return if @hasUser(user)
 
     @users.push user
+    user.channels.push @
     
     @dispatch user, 'join', null, @name
     @sendNames user
   
   removeUser: (user) ->
     @users.splice @users.indexOf(user), 1
+    user.channels.splice user.channels.indexOf(@), 1
   
   hasUser: (user) -> _.include @users, user
   
