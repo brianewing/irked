@@ -79,9 +79,8 @@ class Server
   toActor: -> @hostname()
 
   findUser: (nickname) ->
-    # todo: faster implementation
-    
-    (_.select @clients, (client) -> client.user.nick and client.user.nick.toLowerCase() == nickname.toLowerCase())[0]
+    client = _.find @clients, (client) -> client.user.nick and client.user.nick.toLowerCase() == nickname.toLowerCase()
+    client.user if client?
   
   findChannel: (channel) ->
     # todo: faster implementation
