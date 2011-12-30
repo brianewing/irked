@@ -120,13 +120,23 @@ class Server
   
   onMessage: (event) =>
     user = event.client.user
-    channel = @findChannel(event.channel)
     
-    if channel
-      channel.dispatch user, 'privmsg', event.channel, event.message, (u) -> u.equals(user)
-    else
-      event.cancel()
-      user.dispatch @, protocol.errors.noSuchChannel, event.channel, 'Cannot send message to channel'
+    if event.channel
+      channel = @findChannel(event.channel)
+
+      if channel
+        channel.dispatch user, 'privmsg', event.channel, event.message, (u) -> u.equals(user)
+      else
+        event.cancel()
+        user.dispatch @, protocol.errors.noSuchChannel, event.channel, 'Cannot send message to channel'
+    else if event.user
+      to = @findUser(event.user)
+
+      if to
+        to.dispatch user, 'privmsg', to.nick, event.message
+      else
+        event.cancel()
+        user.dispatch @, protocol.errors.noSuchNick, [user.nick, event.user], 'No such nick/channel'
 
 exports.Server = Server
 exports.createServer = (config) -> new Server(config)
