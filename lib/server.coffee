@@ -60,38 +60,29 @@ class Server
       handler(event)
   
   addDefaultHandlers: ->
-    @on 'ping', @onPing
+    @on 'ping', (event) => event.client.user.dispatch(@, 'pong', null, event.token)
     @on 'registered', @onRegistered
     @on 'nick', @onNick
     @on 'join', @onJoin
     @on 'message', @onMessage
+    @on 'names', (event) => @findChannel(event.channel).sendNames(event.user)
   
   addDefaultConfig: ->
   
   hostname: -> @config.hostname
 
-  welcomeMessage: ->
-    "Welcome to #{@config.name}"
+  welcomeMessage: -> "Welcome to #{@config.name}"
   
-  hostMessage: ->
-    "Your host is #{@hostname()} running #{@version()}"
+  hostMessage: -> "Your host is #{@hostname()} running #{@version()}"
   
   toActor: -> @hostname()
 
   findUser: (nickname) ->
-    # todo: faster implementation
-    
-    (_.select @clients, (client) -> client.user.nick and client.user.nick.toLowerCase() == nickname.toLowerCase())[0]
+    client = _.find @clients, (client) -> client.user.nick and client.user.nick.toLowerCase() == nickname.toLowerCase()
+    client.user if client?
   
-  findChannel: (channel) ->
-    # todo: faster implementation
-    @channels[channel.toLowerCase()]
-  
-  makeChannel: (channel) ->
-    @channels[channel.toLowerCase()] ||= new Channel(channel, @)
-
-  onPing: (event) =>
-    event.client.user.dispatch(@, 'pong', null, event.token)
+  findChannel: (channel) -> @channels[channel.toLowerCase()]
+  makeChannel: (channel) -> @channels[channel.toLowerCase()] ||= new Channel(channel, @)
   
   onRegistered: (event) =>
     user = event.client.user
@@ -114,20 +105,29 @@ class Server
   
   onJoin: (event) =>
     user = event.client.user
-    channel = @findChannel(event.channel)
-    channel ||= @makeChannel(event.channel)
+    channel = @makeChannel(event.channel)
 
     channel.addUser(user)
   
   onMessage: (event) =>
     user = event.client.user
-    channel = @findChannel(event.channel)
     
-    if channel
-      channel.dispatch user, 'privmsg', event.channel, event.message, (u) -> u.equals(user)
-    else
-      event.cancel()
-      user.dispatch @, protocol.errors.noSuchChannel, event.channel, 'Cannot send message to channel'
+    if event.channel
+      channel = @findChannel(event.channel)
+
+      if channel
+        channel.dispatch user, 'privmsg', event.channel, event.message, (u) -> u.equals(user)
+      else
+        event.cancel()
+        user.dispatch @, protocol.errors.noSuchChannel, event.channel, 'Cannot send message to channel'
+    else if event.user
+      to = @findUser(event.user)
+
+      if to
+        to.dispatch user, 'privmsg', to.nick, event.message
+      else
+        event.cancel()
+        user.dispatch @, protocol.errors.noSuchNick, [user.nick, event.user], 'No such nick/channel'
 
 exports.Server = Server
 exports.createServer = (config) -> new Server(config)

@@ -16,12 +16,7 @@ class UserEvent extends Event
   
   @registeredOnly = false
   
-  type: ->
-    'user'
-  
-  verify: ->
-    return false if @client.user.registered
-
-    @ident and @mode and @realname
+  type: -> 'user'
+  verify: -> @ident and @mode and @realname and not @client.user.registered
 
 exports.event = UserEvent

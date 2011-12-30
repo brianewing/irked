@@ -3,8 +3,6 @@ Event = require('./event').Event
 
 class UserRegisteredEvent extends Event
   constructor: (@nick, @ident, @realname) ->
-  
-  type: ->
-    'registered'
+  type: -> 'registered'
 
 exports.event = UserRegisteredEvent

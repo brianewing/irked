@@ -13,8 +13,7 @@ class User
     line = protocol.combine(actor, verb, args, extended)
     @client.write "#{line}\r\n"
   
-  disconnect: ->
-    @client.end()
+  disconnect: -> @client.end()
   
   disconnectCleanup: ->
     [@pingTimeout, @pingDisconnectTimeout].forEach (timeout) ->
@@ -36,8 +35,7 @@ class User
     # todo: ping timeout quit message
     @disconnect()
 
-  touch: ->
-    @setupPing()
+  touch: -> @setupPing()
   
   checkRegistered: ->
     if @nick and @ident and @realname
@@ -50,7 +48,6 @@ class User
   hostmask: -> @client.remoteAddress # todo: hostname lookups, vhosts, oh my!
   toActor: -> "#{@nick}!#{@ident}@#{@hostmask()}"
 
-  equals: (other) ->
-    other and other.nick.toLowerCase() == @nick.toLowerCase()
+  equals: (other) -> other and other.nick.toLowerCase() == @nick.toLowerCase()
   
 exports.User = User

@@ -7,11 +7,9 @@ class NickChangeEvent extends Event
   
   @registeredOnly = false
   
-  type: ->
-    'nick'
+  type: -> 'nick'
   
-  verify: ->
-    @nick and not @nick.match(protocol.validations.invalidNick)
+  verify: -> @nick and not @nick.match(protocol.validations.invalidNick)
   
   notVerified: ->
     @user.dispatch @server, protocol.errors.badNick, [@user.nick, @nick], 'Invalid nickname'
