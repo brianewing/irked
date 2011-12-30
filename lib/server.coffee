@@ -65,6 +65,7 @@ class Server
     @on 'nick', @onNick
     @on 'join', @onJoin
     @on 'message', @onMessage
+    @on 'names', (event) => @findChannel(event.channel).sendNames(event.user)
   
   addDefaultConfig: ->
   
