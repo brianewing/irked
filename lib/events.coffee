@@ -5,6 +5,7 @@ NickChangeEvent = require('./events/nick').event
 UserEvent = require('./events/user').event
 JoinEvent = require('./events/join').event
 NamesEvent = require('./events/names').event
+TopicEvent = require('./events/topic').event
 
 exports.factory = (server, client, verb, args, extended) ->
   event = null
@@ -18,6 +19,7 @@ exports.factory = (server, client, verb, args, extended) ->
     "join": JoinEvent
     "names": NamesEvent
     "who": NamesEvent # todo: implement WHO properly
+    "topic": TopicEvent
   
   eventType = mapping[verb.toLowerCase()]
 

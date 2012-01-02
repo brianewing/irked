@@ -66,6 +66,7 @@ class Server
     @on 'join', @onJoin
     @on 'message', @onMessage
     @on 'names', (event) => @findChannel(event.channel).sendNames(event.user)
+    @on 'topic', @onTopic
   
   addDefaultConfig: ->
   
@@ -130,6 +131,15 @@ class Server
       else
         event.cancel()
         user.dispatch @, protocol.errors.noSuchNick, [user.nick, event.user], 'No such nick/channel'
+  
+  onTopic: (event) =>
+    channel = @findChannel(event.channel)
+
+    if event.newTopic
+      channel.setTopic(event.newTopic)
+      channel.dispatch event.user, 'topic', event.channel, event.newTopic
+    else
+      channel.sendTopic(event.user)
 
 exports.Server = Server
 exports.createServer = (config) -> new Server(config)

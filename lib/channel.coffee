@@ -13,6 +13,7 @@ class Channel
     
     @dispatch user, 'join', null, @name
     @sendNames user
+    @sendTopic user
   
   removeUser: (user) ->
     @users.splice @users.indexOf(user), 1
@@ -34,5 +35,11 @@ class Channel
       user.dispatch @server, protocol.reply.nameReply, [user.nick, '=', @name], names.join(' ')
     
     user.dispatch @server, protocol.reply.endNames, [user.nick, @name], 'End of NAMES list'
+  
+  setTopic: (topic) ->
+    @topic = topic
+  
+  sendTopic: (user) ->
+    user.dispatch @server, protocol.reply.topic, [user.nick, @name], @topic if @topic
   
 exports.Channel = Channel
